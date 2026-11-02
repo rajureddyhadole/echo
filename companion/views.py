@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from .agents.agent import run_companion_agent
 from .models import ChatMessage
+from .pagination import ChatPagination
 from .serializers import ChatHistoryResponseSerializer, ChatSerializer
 
 # Create your views here.
@@ -32,8 +33,18 @@ class ChatView(APIView):
 
     def get(self, request):
         chat_history = ChatMessage.objects.filter(user=request.user).order_by(
-            "created_at"
+            "-created_at"
         )
-        response_serializer = ChatHistoryResponseSerializer(chat_history, many=True)
+        paginator = ChatPagination()
 
-        return Response(response_serializer.data, status=status.HTTP_200_OK)
+        paginated_chat_history = paginator.paginate_queryset(
+            chat_history,
+            request,
+            view=self,
+        )
+
+        response_serializer = ChatHistoryResponseSerializer(
+            paginated_chat_history, many=True
+        )
+
+        return paginator.get_paginated_response(response_serializer.data)
