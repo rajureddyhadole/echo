@@ -24,7 +24,7 @@ class ChatView(APIView):
         ai_response = run_companion_agent(message, user_identifier)
 
         ChatMessage.objects.create(
-            user=user_identifier,
+            user_id=user_identifier,
             user_message=message,
             ai_response=ai_response,
         )
