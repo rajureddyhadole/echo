@@ -31,7 +31,9 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "headband-basis-chant.ngrok-free.dev",
+]
 
 
 # Application definition
@@ -91,6 +93,25 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "accounts.CustomUser"
+
+
+# Celery Configuration
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
+# Celery Beat Periodic Task Schedule
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "check-due-reminders-every-5-minutes": {
+        "task": "reminders.tasks.check_due_reminders",
+        "schedule": crontab(minute="*/5"),  # Runs every 5 minutes
+    },
+}
 
 
 # Password validation
