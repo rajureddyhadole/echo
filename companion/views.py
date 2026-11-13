@@ -75,14 +75,13 @@ def telegram_webhook_view(request):
         if not user_message:
             return JsonResponse({"status": "ok"})
 
-        user_id = 1
+        user_id = message_data["from"]["id"]
 
         ai_response_text = run_companion_agent(
             user_message=user_message, user_id=user_id
         )
 
         token = os.getenv("TELEGRAM_BOT_TOKEN")
-        print(f"[DEBUG] TELEGRAM_BOT_TOKEN loaded: '{token}'")
 
         if not token:
             print("[ERROR] TELEGRAM_BOT_TOKEN is None or empty!")
