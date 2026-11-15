@@ -14,3 +14,11 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return self.user_message
+
+
+class TelegramProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="telegram"
+    )
+    chat_id = models.BigIntegerField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)

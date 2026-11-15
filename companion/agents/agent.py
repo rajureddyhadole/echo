@@ -50,10 +50,10 @@ def create_reminder(title: str, remind_at: str, config: RunnableConfig) -> str:
 
 
 @tool
-def get_reminders() -> str:
+def get_reminders(user_id: int) -> str:
     """Retrieve and list all saved reminders from the database."""
     try:
-        reminders = Reminder.objects.all().order_by("remind_at")
+        reminders = Reminder.objects.filter(user_id=user_id).order_by("remind_at")
         if not reminders.exists():
             return "You currently have no reminders saved."
 

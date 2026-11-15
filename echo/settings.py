@@ -17,6 +17,7 @@ from decouple import config
 
 GROQ_API_KEY = config("GROQ_API_KEY")
 MEM0_API_KEY = config("MEM0_API_KEY")
+TELEGRAM_WEBHOOK_SECRET = config("TELEGRAM_WEBHOOK_SECRET")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    "*",
     "headband-basis-chant.ngrok-free.dev",
 ]
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ChatMessage
+from .models import ChatMessage, TelegramProfile
 
 # Register your models here.
 
@@ -19,3 +19,8 @@ class chatMessageAdmin(admin.ModelAdmin):
         )
 
     user_message_preview.short_description = "User Message"
+
+
+@admin.register(TelegramProfile)
+class TelegramProfileAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "chat_id", "created_at")

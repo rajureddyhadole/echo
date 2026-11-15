@@ -1,3 +1,4 @@
+import logging
 import os
 
 import requests
@@ -5,6 +6,8 @@ from celery import shared_task
 from django.utils import timezone
 
 from .models import Reminder
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
