@@ -37,7 +37,7 @@ ALLOWED_HOSTS = [
     "headband-basis-chant.ngrok-free.dev",
 ]
 
-
+TIME_ZONE = "Asia/Kolkata"
 # Application definition
 
 INSTALLED_APPS = [

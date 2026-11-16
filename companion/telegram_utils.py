@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 ("TELEGRAM_BOT_TOKEN is not set")
 
 
-def get_or_create_telegram_user(chat_id, username=None):
+def get_or_create_telegram_user(chat_id, email=None):
     profile = (
         TelegramProfile.objects.filter(chat_id=chat_id).select_related("user").first()
     )
@@ -19,7 +19,7 @@ def get_or_create_telegram_user(chat_id, username=None):
         return profile.user
     with transaction.atomic():
         User = get_user_model()
-        user = User.objects.create_user(username=f"tg_{chat_id}")
+        user = User.objects.create_user(email=f"tg_{chat_id}@telegram.local")
         user.set_unusable_password()
         user.save()
         TelegramProfile.objects.create(user=user, chat_id=chat_id)
@@ -43,3 +43,4 @@ def send_telegram_message(chat_id, text):
             logger.warning("Telegram sendMessage failed: %s", res.status_code)
     except requests.RequestException:
         logger.exception("Telegram sendMessage error")
+        return False

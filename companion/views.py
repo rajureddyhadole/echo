@@ -1,8 +1,6 @@
 import hmac
 import json
-import os
 
-import requests
 from django.conf import settings
 from django.http import HttpResponseForbidden, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
