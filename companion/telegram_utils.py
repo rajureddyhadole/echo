@@ -10,7 +10,7 @@ from .models import TelegramProfile
 logger = logging.getLogger(__name__)
 
 
-def get_or_create_telegram_user(chat_id, email=None):
+def get_or_create_telegram_user(chat_id):
     profile = (
         TelegramProfile.objects.filter(chat_id=chat_id).select_related("user").first()
     )
@@ -29,7 +29,7 @@ def send_telegram_message(chat_id, text):
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     if not token:
         logger.error("TELEGRAM_BOT_TOKEN is not set")
-        return
+        return False
 
     try:
         res = requests.post(

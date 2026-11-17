@@ -32,19 +32,23 @@ def send_telegram_reminder(reminder_id):
     except Reminder.DoesNotExist:
         return "Reminder not found."
 
-    if reminder.is_notified:
-        return "Already sent."
-
     profile = getattr(reminder.user, "telegram", None)
     if profile is None:
         logger.warning("User %s has no Telegram profile", reminder.user_id)
         return "Failed: user has no linked chat."
 
+    claimed = Reminder.objects.filter(id=reminder_id, is_notified=False).update(
+        is_notified=True
+    )
+
+    if not claimed:
+        return "Already sent or in progress."
+
     local_time = timezone.localtime(reminder.remind_at).strftime("%d %b %Y, %I:%M %p")
     text = f"🔔 Reminder: {reminder.title}\n(Scheduled for: {local_time})"
 
     if send_telegram_message(profile.chat_id, text):
-        reminder.is_notified = True
-        reminder.save(update_fields=["is_notified"])
         return f"Sent: {reminder.title}"
+
+    Reminder.objects.filter(id=reminder_id).update(is_notified=False)
     return "Failed to send."
