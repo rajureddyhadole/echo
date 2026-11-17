@@ -8,7 +8,6 @@ from django.db import transaction
 from .models import TelegramProfile
 
 logger = logging.getLogger(__name__)
-("TELEGRAM_BOT_TOKEN is not set")
 
 
 def get_or_create_telegram_user(chat_id, email=None):
@@ -38,9 +37,10 @@ def send_telegram_message(chat_id, text):
             json={"chat_id": chat_id, "text": text},
             timeout=10,
         )
-
-        if not res.ok:
-            logger.warning("Telegram sendMessage failed: %s", res.status_code)
     except requests.RequestException:
         logger.exception("Telegram sendMessage error")
         return False
+
+    if not res.ok:
+        logger.warning("Telegram sendMessage failed: %s", res.status_code)
+    return res.ok

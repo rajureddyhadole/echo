@@ -3,6 +3,8 @@ import logging
 from celery import shared_task
 from django.utils import timezone
 
+from companion.telegram_utils import send_telegram_message
+
 from .models import Reminder
 
 logger = logging.getLogger(__name__)
@@ -41,7 +43,7 @@ def send_telegram_reminder(reminder_id):
     local_time = timezone.localtime(reminder.remind_at).strftime("%d %b %Y, %I:%M %p")
     text = f"🔔 Reminder: {reminder.title}\n(Scheduled for: {local_time})"
 
-    if send_telegram_reminder(profile.chat_id, text):
+    if send_telegram_message(profile.chat_id, text):
         reminder.is_notified = True
         reminder.save(update_fields=["is_notified"])
         return f"Sent: {reminder.title}"
