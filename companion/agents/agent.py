@@ -27,7 +27,9 @@ def create_reminder(title: str, remind_at: str, config: RunnableConfig) -> str:
 
     Args:
         title: What the reminder is about (e.g., "Call mom").
-        remind_at: When to remind them (e.g., "Tomorrow at 5 PM").
+        remind_at: When to remind them, as an ISO 8601 date and time with
+            a timezone offset, e.g. "2026-11-18T17:00:00+05:30".
+            Work this out from the current date and time you were given.
     """
     configurable = config.get("configurable", {})
     user_id = configurable.get("user_id")
@@ -50,8 +52,12 @@ def create_reminder(title: str, remind_at: str, config: RunnableConfig) -> str:
 
 
 @tool
-def get_reminders(user_id: int) -> str:
+def get_reminders(config: RunnableConfig) -> str:
     """Retrieve and list all saved reminders from the database."""
+    user_id = config.get("configurable", {}).get("user_id")
+    if not user_id:
+        return "Error: User Identification missing for fetching reminders."
+
     try:
         reminders = Reminder.objects.filter(user_id=user_id).order_by("remind_at")
         if not reminders.exists():
@@ -92,7 +98,7 @@ def retrieve_memory_node(state: AgentState) -> AgentState:
 def call_llm_node(state: AgentState) -> AgentState:
     context = state["context"]
 
-    current_time = timezone.now().strftime("%A, %B %d, %Y at %I:%M %p %Z")
+    current_time = timezone.localtime().strftime("%A, %B %d, %Y at %I:%M %p (UTC%z)")
 
     system_prompt = SystemMessage(
         content=f"""

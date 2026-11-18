@@ -28,7 +28,6 @@ def get_or_create_telegram_user(chat_id):
 def send_telegram_message(chat_id, text):
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     if not token:
-        logger.error("TELEGRAM_BOT_TOKEN is not set")
         return False
 
     try:

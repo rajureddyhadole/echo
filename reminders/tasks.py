@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 def check_due_reminders():
     now = timezone.now()
     due_ids = Reminder.objects.filter(
-        is_notified=False, remind_at__lte=now
+        is_notified=False,
+        remind_at__lte=now,
+        user__telegram__isnull=False,
     ).values_list("id", flat=True)
 
     count = 0

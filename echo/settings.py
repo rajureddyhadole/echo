@@ -37,7 +37,6 @@ ALLOWED_HOSTS = [
     "headband-basis-chant.ngrok-free.dev",
 ]
 
-TIME_ZONE = "Asia/Kolkata"
 # Application definition
 
 INSTALLED_APPS = [
@@ -154,7 +153,7 @@ SIMPLE_JWT = {
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -170,8 +169,4 @@ STATIC_URL = "static/"
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    "default": {
-        "BACKEND": "django.core.mail.backends.console.EmailBackend",
-    },
-}
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
