@@ -3,6 +3,7 @@ import logging
 from celery import shared_task
 
 from .agents.agent import run_companion_agent
+from .models import ChatMessage
 
 logger = logging.getLogger(__name__)
 
@@ -15,5 +16,8 @@ def process_telegram_message(user_id, chat_id, text):
         reply = run_companion_agent(user_message=text, user_id=user_id)
     except Exception:
         logger.exception("Agent failed for user %s", user_id)
-        reply = "Sorry, something went wrong. Please try again."
+        send_telegram_message(chat_id, "Sorry, something went wrong. Please try again.")
+        return
+
+    ChatMessage.objects.create(user_id=user_id, user_message=text, ai_response=reply)
     send_telegram_message(chat_id, reply)

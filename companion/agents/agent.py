@@ -3,7 +3,7 @@ from typing import Annotated, TypedDict
 from django.conf import settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 from langchain_groq import ChatGroq
@@ -11,6 +11,7 @@ from langgraph.graph import END, START, StateGraph, add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from mem0 import MemoryClient
 
+from companion.models import ChatMessage
 from reminders.models import Reminder
 
 model = ChatGroq(
@@ -131,7 +132,9 @@ def call_llm_node(state: AgentState) -> AgentState:
 
 def add_memory_node(state: AgentState) -> AgentState:
     user_id = state["user_id"]
-    user_content = state["messages"][0].content
+    user_content = next(
+        m.content for m in reversed(state["messages"]) if isinstance(m, HumanMessage)
+    )
     ai_reply = state["reply"]
 
     print("Storing conversation turn into Mem0...")
@@ -168,10 +171,27 @@ builder.add_edge("add_memory", END)
 graph = builder.compile()
 
 
+HISTORY_LIMIT = 6
+
+
+def get_recent_history(user_id):
+    recent = list(
+        ChatMessage.objects.filter(user_id=user_id).order_by("-created_at")[
+            :HISTORY_LIMIT
+        ]
+    )
+    recent.reverse()
+    history = []
+    for m in recent:
+        history.append(HumanMessage(content=m.user_message))
+        history.append(AIMessage(content=m.ai_response))
+    return history
+
+
 def run_companion_agent(user_message: str, user_id: int) -> str:
     initial_state = {
         "user_id": str(user_id),
-        "messages": [HumanMessage(content=user_message)],
+        "messages": get_recent_history(user_id) + [HumanMessage(content=user_message)],
         "context": "",
         "reply": "",
     }
