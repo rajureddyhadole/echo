@@ -34,6 +34,10 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
+ALLOWED_TELEGRAM_CHAT_IDS = config(
+    "ALLOWED_TELEGRAM_CHAT_IDS", default="", cast=Csv(int)
+)
+
 # Application definition
 
 INSTALLED_APPS = [

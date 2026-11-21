@@ -84,6 +84,10 @@ def telegram_webhook_view(request):
     if not chat_id or not text:
         return JsonResponse({"status": "ok"})
 
+    allowed = settings.ALLOWED_TELEGRAM_CHAT_IDS
+    if allowed and chat_id not in allowed:
+        return JsonResponse({"status": "ok"})
+
     user = get_or_create_telegram_user(chat_id)
 
     if text.strip().startswith("/start"):
