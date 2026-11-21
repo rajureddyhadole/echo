@@ -60,12 +60,15 @@ def get_reminders(config: RunnableConfig) -> str:
         return "Error: User Identification missing for fetching reminders."
 
     try:
-        reminders = Reminder.objects.filter(user_id=user_id).order_by("remind_at")
+        reminders = Reminder.objects.filter(
+            user_id=user_id, is_notified=False
+        ).order_by("remind_at")
         if not reminders.exists():
             return "You currently have no reminders saved."
 
         reminder_list = "\n".join(
-            [f"- **{r.title}** (Scheduled for: {r.remind_at})" for r in reminders]
+            f"- {r.title} ({timezone.localtime(r.remind_at).strftime('%d %b, %I:%M %p')})"
+            for r in reminders
         )
         return f"Here are your current reminders:\n{reminder_list}"
     except Exception as e:
