@@ -23,6 +23,7 @@ google-genai==2.33.0
 googleapis-common-protos==1.76.0
 groq==0.37.1
 grpcio==1.85.0
+gunicorn==27.0.1
 h11==0.16.0
 h2==4.4.1
 hpack==4.2.0

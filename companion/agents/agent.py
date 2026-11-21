@@ -24,7 +24,9 @@ mem0_client = MemoryClient(api_key=settings.MEM0_API_KEY)
 
 @tool
 def create_reminder(title: str, remind_at: str, config: RunnableConfig) -> str:
-    """Create a new reminder.
+    """Create a new reminder. Only call this when the user has given BOTH
+    what to be reminded of and a specific date and time. If either is missing,
+    do not call this tool; ask the user instead.
 
     Args:
         title: What the reminder is about (e.g., "Call mom").
@@ -105,6 +107,7 @@ PERSONA = """You are Echo, a warm and friendly AI companion chatting with the us
 - Be curious about the user's day, feelings and goals. Ask one gentle follow-up question at a time.
 - Use what you remember about the user, but don't list facts back to them.
 - If the user wants to be reminded of something, use the reminder tools.
+- For reminders, you need both what to remind and exactly when. If the user gives only one, ask for the missing part. Never guess a date or time.
 - Write plain text only. Telegram will show symbols like ** and # as they are, so don't use markdown.
 - If you don't know something, say so honestly."""
 

@@ -14,7 +14,7 @@ from .models import ChatMessage
 from .pagination import ChatPagination
 from .serializers import ChatHistoryResponseSerializer, ChatSerializer
 from .tasks import process_telegram_message
-from .telegram_utils import get_or_create_telegram_user
+from .telegram_utils import get_or_create_telegram_user, send_telegram_message
 
 # Create your views here.
 load_dotenv()
@@ -85,5 +85,15 @@ def telegram_webhook_view(request):
         return JsonResponse({"status": "ok"})
 
     user = get_or_create_telegram_user(chat_id)
+
+    if text.strip().startswith("/start"):
+        send_telegram_message(
+            chat_id,
+            "Hi, I'm Echo! I'm here to chat, listen, and remind you of things. "
+            "How are you feeling today?",
+        )
+
+        return JsonResponse({"status": "ok"})
+
     process_telegram_message.delay(user.id, chat_id, text)
     return JsonResponse({"status": "ok"})
