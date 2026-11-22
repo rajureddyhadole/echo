@@ -1,0 +1,47 @@
+x-app: &app
+  build: .
+  image: echo-app
+  env_file: .env
+  environment:
+    DATABASE_URL: postgres://echo_user:${POSTGRES_PASSWORD}@db:5432/echo_db
+    REDIS_URL: redis://redis:6379/0
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: echo_db
+      POSTGRES_USER: echo_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U echo_user -d echo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+
+  web:
+    <<: *app
+    command: sh -c "python manage.py migrate && gunicorn echo.wsgi:application --bind 0.0.0.0:8000 --workers 2"
+    ports:
+      - 8000:8000
+
+  worker:
+    <<: *app
+    command: celery -A echo worker -l info
+
+  beat:
+    <<: *app
+    command: celery -A echo beat -l info
+
+volumes:
+  pgdata:
