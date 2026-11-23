@@ -94,9 +94,18 @@ def retrieve_memory_node(state: AgentState) -> AgentState:
     latest_message = state["messages"][-1].content
 
     print(f"Fetching memories for user: {user_id}")
-    memories = mem0_client.search(query=latest_message, filters={"user_id": user_id})
+    try:
+        memories = mem0_client.search(
+            query=latest_message, filters={"user_id": user_id}
+        )
 
-    context_str = "\n".join([m.get("memory", "") for m in memories.get("results", [])])
+        context_str = "\n".join(
+            [m.get("memory", "") for m in memories.get("results", [])]
+        )
+    except Exception as e:
+        print("Error fetching memory: {e}")
+        context_str = ""
+
     state["context"] = context_str
     return state
 
