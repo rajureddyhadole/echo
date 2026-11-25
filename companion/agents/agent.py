@@ -145,27 +145,40 @@ def call_llm_node(state: AgentState) -> AgentState:
     }
 
 
-def add_memory_node(state: AgentState) -> AgentState:
-    user_id = state["user_id"]
-    user_content = next(
-        m.content for m in reversed(state["messages"]) if isinstance(m, HumanMessage)
-    )
-    ai_reply = state["reply"]
+# def add_memory_node(state: AgentState) -> AgentState:
+#     user_id = state["user_id"]
+#     user_content = next(
+#         m.content for m in reversed(state["messages"]) if isinstance(m, HumanMessage)
+#     )
+#     ai_reply = state["reply"]
 
-    print("Storing conversation turn into Mem0...")
+#     print("Storing conversation turn into Mem0...")
 
-    message_to_store = [
-        {"role": "user", "content": user_content},
-        {"role": "assistant", "content": ai_reply},
-    ]
+#     message_to_store = [
+#         {"role": "user", "content": user_content},
+#         {"role": "assistant", "content": ai_reply},
+#     ]
 
+#     try:
+#         mem0_client.add(message_to_store, user_id=user_id)
+#         return state
+#     except Exception as e:
+#         print(f"Error storing memory: {e}")
+
+#     return state
+
+
+def save_memory(user_id, user_message, ai_reply):
     try:
-        mem0_client.add(message_to_store, user_id=user_id)
-        return state
+        mem0_client.add(
+            [
+                {"role": "user", "content": user_message},
+                {"role": "assistant", "content": ai_reply},
+            ],
+            user_id=str(user_id),
+        )
     except Exception as e:
         print(f"Error storing memory: {e}")
-
-    return state
 
 
 builder = StateGraph(AgentState)
@@ -173,15 +186,11 @@ builder = StateGraph(AgentState)
 builder.add_node("retrieve_memory", retrieve_memory_node)
 builder.add_node("call_llm", call_llm_node)
 builder.add_node("tools", ToolNode([create_reminder, get_reminders]))
-builder.add_node("add_memory", add_memory_node)
 
 builder.add_edge(START, "retrieve_memory")
 builder.add_edge("retrieve_memory", "call_llm")
-builder.add_conditional_edges(
-    "call_llm", tools_condition, {"tools": "tools", END: "add_memory"}
-)
+builder.add_conditional_edges("call_llm", tools_condition, {"tools": "tools", END: END})
 builder.add_edge("tools", "call_llm")
-builder.add_edge("add_memory", END)
 
 graph = builder.compile()
 
